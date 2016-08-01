@@ -1,0 +1,5 @@
+Run below commands into the serial connection to setup WIFI and MQTT and Device ID:
+
+WIFI|<WIFI_SSID>|<WIFI_PASSWORD>
+MQTT|<IP>|<PORT>|<USERNAME>|<PASSWORD>
+DEVICE|<ID>
