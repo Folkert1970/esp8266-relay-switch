@@ -10,8 +10,10 @@ int value = 0;
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 
-String last_payload = "";
+// String last_payload = "";
 
+int switch_states[] = {0, 0};
+int switch_pins[] = {5, 4};
 
 int mqtt_connected(){
   return mqttClient.connected();
@@ -22,10 +24,48 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  for (int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
+  
+  char c_payload[length];
+  memcpy(c_payload, payload, length);
+  c_payload[length] = '\0';
+  Serial.print("RECEIVED CONTENT: ");
+  Serial.println(c_payload);
+  
+  const char* topic_action  = "SWITCH_ACTION";
+  const char* topic_status  = "SWITCH_STATUS";
+  const char* cmd_query     = "QUERY";
+  
+  int cmp_status = strcmp(topic, topic_status);
+  int cmp_action = strcmp(topic, topic_action);
+  
+  if(cmp_status == 0) {
+    Serial.print("RECEIVED TOPIC SWITCH_STATUS!");    
+    
+    int cmp_query = strcmp(c_payload, cmd_query);
+    if (cmp_query == 0){ // QUERY command is received
+      Serial.print("RECEIVED REQUEST FOR STATUS, SENDING OUT STATUS...");   
+      String out_payload =
+       "0:" + String(switch_states[0]) +  ","
+       "1:" + String(switch_states[1]);
+      mqttClient.publish(topic_status, out_payload.c_str());
+    }
   }
-  Serial.println();
+  
+  if(cmp_action == 0) {
+    Serial.print("RECEIVED TOPIC SWITCH_ACTION!");
+    int relay_id = my_atoi(c_payload);
+    Serial.print("RECEIVED REQUEST FOR SWITCHING RELAY ID: " + relay_id);   
+    switch_relay(relay_id);
+    String out_payload =
+     "0:" + String(switch_states[0]) +  ","
+     "1:" + String(switch_states[1]);
+    mqttClient.publish(topic_status, out_payload.c_str());
+  }
+  
+  // for (int i = 0; i < length; i++) {
+  //   Serial.print((char)payload[i]);
+  // }
+  // Serial.println();
 }
 
 void setupMQTT() {
@@ -68,6 +108,7 @@ void reconnectMQTT() {
           mqttClient.publish("HEARTBEAT", device_id);
           // ... and resubscribe
           mqttClient.subscribe("SWITCH_ACTION");
+          mqttClient.subscribe("SWITCH_STATUS");
         } else {
           Serial.print("failed, rc=");
           Serial.print(mqttClient.state());

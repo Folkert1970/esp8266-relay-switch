@@ -25,9 +25,11 @@ void setup() {
   setupWifi();
   setupMQTT();
   reconnectMQTT();
+  setup_switch();
   
-  switchLED();
-  switchLED();
+  // switchLED();
+  // switchLED();
+  
 }
 
 
