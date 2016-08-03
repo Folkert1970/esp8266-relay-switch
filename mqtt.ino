@@ -1,5 +1,3 @@
-//const char* mqtt_server = "m10.cloudmqtt.com";
-//"rvugvfll", "nUCHj6oTnSWy"
 #include <WiFiClient.h> 
 #include <PubSubClient.h>
 
