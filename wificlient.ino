@@ -1,4 +1,4 @@
-// WIFI|KevinVo2.4Ghz-NEW|troioilatroi
+// WIFI|KevinVo2.4Ghz-NEW|<password>
 
 
 
